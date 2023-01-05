@@ -1,0 +1,22 @@
+{
+  "name": "custom-promise",
+  "version": "1.0.0",
+  "description": "",
+  "main": "MyPromise.js",
+  "scripts": {
+    "test": "jest --watchAll --noStackTrace"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JSDeepDive/CustomPromise.git"
+  },
+  "author": "ericagong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JSDeepDive/CustomPromise/issues"
+  },
+  "homepage": "https://github.com/JSDeepDive/CustomPromise#readme",
+  "dependencies": {
+    "jest": "^29.3.1"
+  }
+}
