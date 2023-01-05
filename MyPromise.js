@@ -53,7 +53,7 @@ class MyPromise {
     queueMicrotask(() => {
       if (this.#state !== STATE.PENDING) return; // 상태 변화시 단 한 번만 호출.
 
-      // Promise라면 동작 마친 뒤 수행하도촐 처리
+      // Promise라면 동작 마친 뒤 수행하도록 처리
       if (result instanceof MyPromise) {
         result.then(this.#onFulfilledBind, this.#onRejectedBind);
         return;
@@ -70,7 +70,7 @@ class MyPromise {
     queueMicrotask(() => {
       if (this.#state !== STATE.PENDING) return; // 상태 변화시 단 한 번만 호출.
 
-      // Promise라면 동작 마친 뒤 수행하도촐 처리
+      // Promise라면 동작 마친 뒤 수행하도록 처리
       if (result instanceof MyPromise) {
         result.then(this.#onFulfilledBind, this.#onRejectedBind);
         return;
@@ -120,6 +120,20 @@ class MyPromise {
   // catch(cb)는 then(undefined, cb)와 동일하게 동작
   catch(cb) {
     return this.then(undefined, cb);
+  }
+
+  // finally는 인자를 받지만 콜백함수에 인자를 전달하지 않음.
+  finally(cb) {
+    return this.then(
+      (result) => {
+        cb();
+        return result;
+      },
+      (result) => {
+        cb();
+        throw result;
+      }
+    );
   }
 }
 
