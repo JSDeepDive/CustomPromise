@@ -54,9 +54,15 @@ class MyPromise {
     this.#runCallbacks();
   }
 
-  then(cb) {
-    this.#thenCbs.push(cb);
+  then(thenCbs, catchCbs) {
+    if (thenCbs !== null) this.#thenCbs.push(thenCbs);
+    if (catchCbs !== null) this.#catchCbs.push(catchCbs);
     // this.#runCallbacks();
+  }
+
+  // catch(cb)는 then(undefined, cb)와 동일하게 동작
+  catch(cb) {
+    this.then(undefined, cb);
   }
 }
 
@@ -67,4 +73,7 @@ const p = new Promise((resolve, reject) => {
   reject("REJECT");
 });
 
-p.then(() => {}).catch(() => {});
+p.then(
+  () => {},
+  () => {}
+).catch(() => {});
