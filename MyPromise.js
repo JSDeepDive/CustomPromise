@@ -49,17 +49,37 @@ class MyPromise {
   }
 
   #onFulfilled(result) {
-    if (this.#state !== STATE.PENDING) return; // 상태 변화시 단 한 번만 호출.
-    this.#result = result;
-    this.#state = STATE.FULFILLED;
-    this.#runCallbacks();
+    // promise의 후속처리 메서드는 마이크로태스크 큐에 들어갔다 콜스택으로 불려와 처리됨.
+    queueMicrotask(() => {
+      if (this.#state !== STATE.PENDING) return; // 상태 변화시 단 한 번만 호출.
+
+      // Promise라면 동작 마친 뒤 수행하도촐 처리
+      if (result instanceof MyPromise) {
+        result.then(this.#onFulfilledBind, this.#onRejectedBind);
+        return;
+      }
+
+      this.#result = result;
+      this.#state = STATE.FULFILLED;
+      this.#runCallbacks();
+    });
   }
 
   #onRejected(result) {
-    if (this.#state !== STATE.PENDING) return; // 상태 변화시 단 한 번만 호출.
-    this.#result = result;
-    this.#state = STATE.REJECTED;
-    this.#runCallbacks();
+    // promise의 후속처리 메서드는 마이크로태스크 큐에 들어갔다 콜스택으로 불려와 처리됨.
+    queueMicrotask(() => {
+      if (this.#state !== STATE.PENDING) return; // 상태 변화시 단 한 번만 호출.
+
+      // Promise라면 동작 마친 뒤 수행하도촐 처리
+      if (result instanceof MyPromise) {
+        result.then(this.#onFulfilledBind, this.#onRejectedBind);
+        return;
+      }
+
+      this.#result = result;
+      this.#state = STATE.REJECTED;
+      this.#runCallbacks();
+    });
   }
 
   then(thenCb, catchCb) {
@@ -99,7 +119,7 @@ class MyPromise {
 
   // catch(cb)는 then(undefined, cb)와 동일하게 동작
   catch(cb) {
-    this.then(undefined, cb);
+    return this.then(undefined, cb);
   }
 }
 
