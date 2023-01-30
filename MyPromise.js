@@ -67,7 +67,9 @@ class MyPromise {
     this.#runCallbacks();
   }
 
-  catch(cb) {}
+  catch(cb) {
+    this.then(undefined, cb);
+  }
 
   finally(cb) {}
 }
