@@ -18,9 +18,13 @@ class MyPromise {
   #state = STATE.PENDING;
   #value;
 
+  // promise chaining을 위해 this 바인딩 수행
+  #onSuccessBind = this.#onSuccess.bind(this);
+  #onFailBind = this.#onFail.bind(this);
+
   constructor(cb) {
     try {
-      cb(this.#onSuccess, this.#onFail);
+      cb(this.#onSuccessBind, this.#onFailBind);
     } catch (e) {
       this.#onFail(e);
     }
@@ -47,6 +51,11 @@ class MyPromise {
   #onSuccess(value) {
     if (this.#state !== STATE.PENDING) return;
 
+    if (value instanceof MyPromise) {
+      value.then(this.#onSuccessBind, this.#onFailBind);
+      return;
+    }
+
     this.#value = value;
     this.#state = STATE.FULFILLED;
     this.#runCallbacks();
@@ -55,16 +64,52 @@ class MyPromise {
   #onFail(value) {
     if (this.#state !== STATE.PENDING) return;
 
+    if (value instanceof MyPromise) {
+      value.then(this.#onSuccessBind, this.#onFailBind);
+      return;
+    }
+
     this.#value = value;
     this.#state = STATE.REJECTED;
     this.#runCallbacks();
   }
 
+  // chaining을 위해서는 promise 리턴해야함
   then(thenCb, catchCb) {
-    if (thenCb != null) this.#thenCbs.push(thenCb);
-    if (catchCb != null) this.#catchCbs.push(catchCb);
+    // if (thenCb != null) this.#thenCbs.push(thenCb);
+    // if (catchCb != null) this.#catchCbs.push(catchCb);
 
-    this.#runCallbacks();
+    return new MyPromise((resolve, reject) => {
+      this.#thenCbs.push((result) => {
+        if (thenCb == null) {
+          // catch 처리
+          resolve(result);
+          return;
+        }
+
+        try {
+          resolve(thenCb(result)); // chaining
+        } catch (e) {
+          reject(e);
+        }
+      });
+
+      this.#catchCbs.push((result) => {
+        if (catchCb == null) {
+          // catch 처리
+          reject(result);
+          return;
+        }
+
+        try {
+          resolve(catchCb(result)); // chaining
+        } catch (e) {
+          reject(e);
+        }
+      });
+
+      this.#runCallbacks();
+    });
   }
 
   catch(cb) {
