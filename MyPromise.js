@@ -193,6 +193,14 @@ class MyPromise {
       }
     })
   }
+
+  static race(promises) {
+    return new MyPromise((resolve, reject) => {
+      promises.forEach((promise) => {
+        promise.then(resolve).catch(reject)
+      })
+    })
+  }
 }
 
 class UncaughtPromiseError extends Error {
