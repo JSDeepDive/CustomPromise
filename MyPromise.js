@@ -74,7 +74,6 @@ class MyPromise {
     this.#runCallbacks();
   }
 
-  // chaining을 위해서는 promise 리턴해야함
   then(thenCb, catchCb) {
     // if (thenCb != null) this.#thenCbs.push(thenCb);
     // if (catchCb != null) this.#catchCbs.push(catchCb);
@@ -96,7 +95,6 @@ class MyPromise {
 
       this.#catchCbs.push((result) => {
         if (catchCb == null) {
-          // catch 처리
           reject(result);
           return;
         }
@@ -113,10 +111,12 @@ class MyPromise {
   }
 
   catch(cb) {
-    this.then(undefined, cb);
+    return this.then(undefined, cb);
   }
 
-  finally(cb) {}
+  finally(cb) {
+    return undefined;
+  }
 }
 
 module.exports = MyPromise;
