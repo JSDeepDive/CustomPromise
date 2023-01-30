@@ -1,3 +1,9 @@
+const STATE = {
+  PENDING: "pending",
+  FULFILLED: "fulfilled",
+  REJECTED: "rejected",
+};
+
 /* Promise : 비동기 처리 상태(state)와 결과(result)를 저장한 객체.
  *           then, catch, finally 메서드를 통해 콜백 함수들을 받아 배열 형태로 저장해둔 객체.
  * 			     상태(state)가 변경되면, 상태값에 따라 어떤 콜백함수 배열을 호출할 것인지를 결정.
@@ -6,3 +12,58 @@
  *           이 때 콜백함수 인자로는 result가 들어감.
  * 					 resolve 함수 호출 시 상태가 fulfilled로, reject 함수 호출 시 상태가 rejected로 변경됨.
  **/
+class MyPromise {
+  #thenCbs = [];
+  #catchCbs = [];
+  #state = STATE.PENDING;
+  #value;
+
+  constructor(cb) {
+    try {
+      cb(this.#onSuccess, this.#onFail);
+    } catch (e) {
+      this.#onFail(e);
+    }
+  }
+
+  #runCallbacks() {
+    if (this.#state === STATE.FULFILLED) {
+      this.#thenCbs.forEach((callback) => {
+        callback(this.#value);
+      });
+
+      this.#thenCbs = [];
+    }
+
+    if (this.#state === STATE.REJECTED) {
+      this.#catchCbs.forEach((callback) => {
+        callback(this.#value);
+      });
+
+      this.#catchCbs = [];
+    }
+  }
+
+  #onSuccess(value) {
+    if (this.#state !== STATE.PENDING) return;
+
+    this.#value = value;
+    this.#state = STATE.FULFILLED;
+    this.#runCallbacks();
+  }
+
+  #onFail(value) {
+    if (this.#state !== STATE.PENDING) return;
+
+    this.#value = value;
+    this.#state = STATE.REJECTED;
+    this.#runCallbacks();
+  }
+
+  then(cb) {
+    this.#thenCbs.push(cb);
+    this.#runCallbacks();
+  }
+}
+
+module.exports = MyPromise;

@@ -8,8 +8,8 @@
   [V] Promise 클래스 구현
 - prototype methods
   [V] then 메서드 구현
-  [V] finally 메서드 구현
-  [V] catch 메서드 구현
+  [] finally 메서드 구현
+  [] catch 메서드 구현
 - static methods
   [] all 메서드 구현
   [] race 메서드 구현
