@@ -72,10 +72,6 @@ class MyPromise {
         return
       }
 
-      if (this.#catchCbs.length === 0) {
-        throw new UncaughtPromiseError(value)
-      }
-
       this.#value = value
       this.#state = STATE.REJECTED
       this.#runCallbacks()
@@ -201,13 +197,25 @@ class MyPromise {
       })
     })
   }
-}
 
-class UncaughtPromiseError extends Error {
-  constructor(error) {
-    super(error)
+  // all과 반대로 동작
+  static any(promises) {
+    const errors = []
+    let rejectedPromises = 0
 
-    this.stack = `(in promise) ${error.stack}`
+    return new MyPromise((resolve, reject) => {
+      for (let i = 0; i < promises.length; i++) {
+        const promise = promises[i]
+        promise.then(resolve).catch((value) => {
+          rejectedPromises++
+          errors[i] = value
+          // 모든 promise 결과값이 나오면 수행
+          if (rejectedPromises === promises.length) {
+            reject(new AggregateError(errors, "ALl promises were rejected"))
+          }
+        })
+      }
+    })
   }
 }
 
