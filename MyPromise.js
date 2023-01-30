@@ -60,10 +60,16 @@ class MyPromise {
     this.#runCallbacks();
   }
 
-  then(cb) {
-    this.#thenCbs.push(cb);
+  then(thenCb, catchCb) {
+    if (thenCb != null) this.#thenCbs.push(thenCb);
+    if (catchCb != null) this.#catchCbs.push(catchCb);
+
     this.#runCallbacks();
   }
+
+  catch(cb) {}
+
+  finally(cb) {}
 }
 
 module.exports = MyPromise;
