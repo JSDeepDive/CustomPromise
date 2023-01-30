@@ -72,6 +72,10 @@ class MyPromise {
         return
       }
 
+      if (this.#catchCbs.length === 0) {
+        throw new UncaughtPromiseError(value)
+      }
+
       this.#value = value
       this.#state = STATE.REJECTED
       this.#runCallbacks()
@@ -131,6 +135,14 @@ class MyPromise {
         throw result
       }
     )
+  }
+}
+
+class UncaughtPromiseError extends Error {
+  constructor(error) {
+    super(error)
+
+    this.stack = `(in promise) ${error.stack}`
   }
 }
 
