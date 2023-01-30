@@ -136,6 +136,18 @@ class MyPromise {
       }
     )
   }
+
+  static resolve(value) {
+    return new Promise((resolve) => {
+      resolve(value)
+    })
+  }
+
+  static reject(value) {
+    return new Promise((resolve, reject) => {
+      reject(value)
+    })
+  }
 }
 
 class UncaughtPromiseError extends Error {
