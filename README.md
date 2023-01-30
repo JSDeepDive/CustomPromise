@@ -9,11 +9,10 @@
   [V] Promise 클래스 구현
 - prototype methods
   [V] then 메서드 구현
-  [] catch 메서드 구현
-  [] finally 메서드 구현
+  [V] catch 메서드 구현
+  [V] finally 메서드 구현
 - static methods
-  [] all 메서드 구현
-  [] race 메서드 구현
-  [] allSettled 메서드 구현
-- 테스트 코드
-  [] test 코드 이해하기
+  [V] all 메서드 구현
+  [V] allSettled 메서드 구현
+  [V] race 메서드 구현
+  [V] any 메서드 구현
