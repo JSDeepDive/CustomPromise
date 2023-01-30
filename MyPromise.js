@@ -148,6 +148,29 @@ class MyPromise {
       reject(value)
     })
   }
+
+  static all(promises) {
+    const results = []
+    let completedPromises = 0
+
+    return new MyPromise((resolve, reject) => {
+      for (let i = 0; i < promises.length; i++) {
+        const promise = promises[i]
+        promise
+          .then((value) => {
+            completedPromises++
+            results[i] = value
+            // 모든 promise 결과값이 나오면 수행
+            if (completedPromises === promises.length) {
+              resolve(results)
+            }
+          })
+          .catch(reject)
+      }
+    })
+  }
+
+  static allSettled(promiseArr) {}
 }
 
 class UncaughtPromiseError extends Error {
