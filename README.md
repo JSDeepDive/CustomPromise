@@ -605,7 +605,7 @@
 
 - 앞서 살펴본 콜백 패턴의 (1) 가독성 저하 (2) 에러 처리 이슈를 해결하기 위해 ES6에 도입된 비동기 처리 장치가 바로 `Promise`이다.
 - 우선, `Promise`는 중첩된 콜백을 **선형에 가까운 프라미스 체인**으로 바꾸어 **가독성을 향상** 시켜준다.
-    - 직접 구현한 `MyPromise` 코드에서 살펴볼 수 있듯, [✅ Promise 후속처리 메서드는 항상 Promise를 반환하기 때문에 Promise 메서드 체이닝이 가능하다.](MyPromise%20e71e11e2815d4186884aeb264c07a48a.md)
+    - 직접 구현한 `MyPromise` 코드에서 살펴볼 수 있듯, [✅ Promise 후속처리 메서드는 항상 Promise를 반환하기 때문에 Promise 메서드 체이닝이 가능하다.](https://github.com/JSDeepDive/CustomPromise/edit/main/README.md#-promise-%ED%9B%84%EC%86%8D%EC%B2%98%EB%A6%AC-%EB%A9%94%EC%84%9C%EB%93%9C%EB%8A%94-%ED%95%AD%EC%83%81-promise%EB%A5%BC-%EB%B0%98%ED%99%98%ED%95%98%EA%B8%B0-%EB%95%8C%EB%AC%B8%EC%97%90-promise-%EB%A9%94%EC%84%9C%EB%93%9C-%EC%B2%B4%EC%9D%B4%EB%8B%9D%EC%9D%B4-%EA%B0%80%EB%8A%A5%ED%95%98%EB%8B%A4-)
     - 즉, `then`, `catch`, `finally` 메서드를 통해 **콜백 함수를 연이어 등록**할 수 있기 때문에 비동기 중첩으로 인한 콜백헬이 발생하지 않는다.
     
     ```javascript
@@ -644,5 +644,5 @@
 ## 4. Promise의 한계 👿
 
 - 정리하면, Promise는 Javascript 비동기 작업의 실행 순서를 보장하기 위해 전통적으로 사용하던 callback 패턴의 **가독성과 에러 처리 부분을 개선**한 비동기 처리 패턴이다.
-- 더 나아가 [✅ Promise는 이 외에도 다양한 static method들을 제공하여 간단히 비동기 후속 처리를 할 수 있도록 도와준다.](MyPromise%20e71e11e2815d4186884aeb264c07a48a.md) 이러한 맥락에서 **Promise = callback 패턴의 syntatic sugar + alpha** 라고 정리해 볼 수 있다.
+- 더 나아가 [✅ Promise는 이 외에도 다양한 static method들을 제공하여 간단히 비동기 후속 처리를 할 수 있도록 도와준다.](https://github.com/JSDeepDive/CustomPromise/blob/main/README.md#-promise%EB%8A%94-%EC%9D%B4-%EC%99%B8%EC%97%90%EB%8F%84-%EB%8B%A4%EC%96%91%ED%95%9C-static-method%EB%93%A4%EC%9D%84-%EC%A0%9C%EA%B3%B5%ED%95%98%EC%97%AC-%EA%B0%84%EB%8B%A8%ED%9E%88-%EB%B9%84%EB%8F%99%EA%B8%B0-%ED%9B%84%EC%86%8D-%EC%B2%98%EB%A6%AC%EB%A5%BC-%ED%95%A0-%EC%88%98-%EC%9E%88%EB%8F%84%EB%A1%9D-%EB%8F%84%EC%99%80%EC%A4%80%EB%8B%A4-) 이러한 맥락에서 **Promise = callback 패턴의 syntatic sugar + alpha** 라고 정리해 볼 수 있다.
 - 하지만 인간의 욕심은 끝이 없다… 개발자들은 비동기 처리 패턴이 마치 동기 코드 수준의 가독성을 가지길 원했고, 이러한 요구 하에 `async/await` 패턴이 등장하게 된다. `async/await` 패턴은 `Generator`를 통해 구현되어 있어 `try… catch…`에 의한 비동기 에러 처리도 가능하다.
