@@ -14,7 +14,7 @@
 3. [Promise가 해결한 문제 🔧](https://github.com/JSDeepDive/CustomPromise/edit/main/README.md#3-promise%EA%B0%80-%ED%95%B4%EA%B2%B0%ED%95%9C-%EB%AC%B8%EC%A0%9C-)
 4. [Promise의 한계 👿](https://github.com/JSDeepDive/CustomPromise/edit/main/README.md#4-promise%EC%9D%98-%ED%95%9C%EA%B3%84-)
 
-
+- 만약 README.md 파일 형식으로 읽기 힘들다면, [Promise 직접 만들어서 이해하자](https://sweet-snapper-a98.notion.site/MyPromise-e71e11e2815d4186884aeb264c07a48a) 해당 링크에서 더 편하게 해당 프로젝트 README를 읽을 수 있다. 
 
 ## 0. 들어가며
 
