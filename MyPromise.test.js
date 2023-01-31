@@ -1,15 +1,15 @@
 const MyPromise = require("./MyPromise.js")
 // const MyPromise = Promise
 
-const DEFAULT_VALUE = "default"
+const DEFAULT_result = "default"
 
 describe("then", () => {
   it("with no chaining", () => {
-    return promise().then((v) => expect(v).toEqual(DEFAULT_VALUE))
+    return promise().then((v) => expect(v).toEqual(DEFAULT_result))
   })
 
   it("with multiple thens for same promise", () => {
-    const checkFunc = (v) => expect(v).toEqual(DEFAULT_VALUE)
+    const checkFunc = (v) => expect(v).toEqual(DEFAULT_result)
     const mainPromise = promise()
     const promise1 = mainPromise.then(checkFunc)
     const promise2 = mainPromise.then(checkFunc)
@@ -17,7 +17,7 @@ describe("then", () => {
   })
 
   it("with then and catch", () => {
-    const checkFunc = (v) => expect(v).toEqual(DEFAULT_VALUE)
+    const checkFunc = (v) => expect(v).toEqual(DEFAULT_result)
     const failFunc = (v) => expect(1).toEqual(2)
     const resolvePromise = promise().then(checkFunc, failFunc)
     const rejectPromise = promise({ fail: true }).then(failFunc, checkFunc)
@@ -25,7 +25,7 @@ describe("then", () => {
   })
 
   it("with chaining", () => {
-    return promise({ value: 3 })
+    return promise({ result: 3 })
       .then((v) => v * 4)
       .then((v) => expect(v).toEqual(12))
   })
@@ -34,12 +34,12 @@ describe("then", () => {
 describe("catch", () => {
   it("with no chaining", () => {
     return promise({ fail: true }).catch((v) =>
-      expect(v).toEqual(DEFAULT_VALUE)
+      expect(v).toEqual(DEFAULT_result)
     )
   })
 
   it("with multiple catches for same promise", () => {
-    const checkFunc = (v) => expect(v).toEqual(DEFAULT_VALUE)
+    const checkFunc = (v) => expect(v).toEqual(DEFAULT_result)
     const mainPromise = promise({ fail: true })
     const promise1 = mainPromise.catch(checkFunc)
     const promise2 = mainPromise.catch(checkFunc)
@@ -47,7 +47,7 @@ describe("catch", () => {
   })
 
   it("with chaining", () => {
-    return promise({ value: 3 })
+    return promise({ result: 3 })
       .then((v) => {
         throw v * 4
       })
@@ -85,27 +85,28 @@ describe("finally", () => {
 
 describe("static methods", () => {
   it("resolve", () => {
-    return MyPromise.resolve(DEFAULT_VALUE).then((v) =>
-      expect(v).toEqual(DEFAULT_VALUE)
+    return MyPromise.resolve(DEFAULT_result).then((v) =>
+      expect(v).toEqual(DEFAULT_result)
     )
   })
 
   it("reject", () => {
-    return MyPromise.reject(DEFAULT_VALUE).catch((v) =>
-      expect(v).toEqual(DEFAULT_VALUE)
+    return MyPromise.reject(DEFAULT_result).catch((v) =>
+      expect(v).toEqual(DEFAULT_result)
     )
   })
 
   describe("all", () => {
     it("with success", () => {
-      return MyPromise.all([promise({ value: 1 }), promise({ value: 2 })]).then(
-        (v) => expect(v).toEqual([1, 2])
-      )
+      return MyPromise.all([
+        promise({ result: 1 }),
+        promise({ result: 2 }),
+      ]).then((v) => expect(v).toEqual([1, 2]))
     })
 
     it("with fail", () => {
       return MyPromise.all([promise(), promise({ fail: true })]).catch((v) =>
-        expect(v).toEqual(DEFAULT_VALUE)
+        expect(v).toEqual(DEFAULT_result)
       )
     })
   })
@@ -114,8 +115,8 @@ describe("static methods", () => {
     return MyPromise.allSettled([promise(), promise({ fail: true })]).then(
       (v) =>
         expect(v).toEqual([
-          { status: "fulfilled", value: DEFAULT_VALUE },
-          { status: "rejected", reason: DEFAULT_VALUE },
+          { status: "fulfilled", result: DEFAULT_result },
+          { status: "rejected", reason: DEFAULT_result },
         ])
     )
   })
@@ -123,37 +124,38 @@ describe("static methods", () => {
   describe("race", () => {
     it("with success", () => {
       return MyPromise.race([
-        promise({ value: 1 }),
-        promise({ value: 2 }),
+        promise({ result: 1 }),
+        promise({ result: 2 }),
       ]).then((v) => expect(v).toEqual(1))
     })
 
     it("with fail", () => {
       return MyPromise.race([
-        promise({ fail: true, value: 1 }),
-        promise({ fail: true, value: 2 }),
+        promise({ fail: true, result: 1 }),
+        promise({ fail: true, result: 2 }),
       ]).catch((v) => expect(v).toEqual(1))
     })
   })
 
   describe("any", () => {
     it("with success", () => {
-      return MyPromise.any([promise({ value: 1 }), promise({ value: 2 })]).then(
-        (v) => expect(v).toEqual(1)
-      )
+      return MyPromise.any([
+        promise({ result: 1 }),
+        promise({ result: 2 }),
+      ]).then((v) => expect(v).toEqual(1))
     })
 
     it("with fail", () => {
       return MyPromise.any([
-        promise({ fail: true, value: 1 }),
-        promise({ value: 2 }),
+        promise({ fail: true, result: 1 }),
+        promise({ result: 2 }),
       ]).catch((e) => expect(e.errors).toEqual([1, 2]))
     })
   })
 })
 
-function promise({ value = DEFAULT_VALUE, fail = false } = {}) {
+function promise({ result = DEFAULT_result, fail = false } = {}) {
   return new MyPromise((resolve, reject) => {
-    fail ? reject(value) : resolve(value)
+    fail ? reject(result) : resolve(result)
   })
 }

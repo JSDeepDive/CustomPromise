@@ -15,90 +15,100 @@ const STATE = {
 class MyPromise {
   #thenCbs = []
   #catchCbs = []
+  #finallyCbs = []
   #state = STATE.PENDING
-  #value
+  #result
 
   // promise chaining을 위해 this 바인딩 수행
-  #onSuccessBind = this.#onSuccess.bind(this)
-  #onFailBind = this.#onFail.bind(this)
+  #onFulfilledBind = this.#onFulfilled.bind(this)
+  #onRejectedBind = this.#onRejected.bind(this)
 
   constructor(cb) {
     try {
-      cb(this.#onSuccessBind, this.#onFailBind)
+      cb(this.#onFulfilledBind, this.#onRejectedBind)
     } catch (e) {
-      this.#onFail(e)
+      this.#onRejected(e)
     }
   }
 
   #runCallbacks() {
-    if (this.#state === STATE.FULFILLED) {
-      this.#thenCbs.forEach((callback) => {
-        callback(this.#value)
-      })
-
-      this.#thenCbs = []
-    }
-
-    if (this.#state === STATE.REJECTED) {
-      this.#catchCbs.forEach((callback) => {
-        callback(this.#value)
-      })
-
-      this.#catchCbs = []
-    }
-  }
-
-  #onSuccess(value) {
     queueMicrotask(() => {
-      if (this.#state !== STATE.PENDING) return
+      if (this.#state === STATE.FULFILLED) {
+        this.#thenCbs.forEach((callback) => {
+          callback(this.#result)
+        })
 
-      if (value instanceof MyPromise) {
-        value.then(this.#onSuccessBind, this.#onFailBind)
-        return
+        this.#thenCbs = [] // 여러 then 내 thenCbs 재호출 방지
       }
 
-      this.#value = value
-      this.#state = STATE.FULFILLED
-      this.#runCallbacks()
+      if (this.#state === STATE.REJECTED) {
+        this.#catchCbs.forEach((callback) => {
+          callback(this.#result)
+        })
+
+        this.#catchCbs = [] // 여러 then 내 catchCbs 재호출 방지
+      }
+
+      if (this.#state !== STATE.PENDING) {
+        this.#finallyCbs.forEach((callback) => {
+          callback()
+        })
+
+        this.#finallyCbs = []
+      }
     })
   }
 
-  #onFail(value) {
-    queueMicrotask(() => {
-      if (this.#state !== STATE.PENDING) return
+  #onFulfilled(result) {
+    if (this.#state !== STATE.PENDING) return // 동일 then 내 resolve 재호출 방지
 
-      if (value instanceof MyPromise) {
-        value.then(this.#onSuccessBind, this.#onFailBind)
-        return
-      }
+    if (result instanceof MyPromise) {
+      result.then(this.#onFulfilledBind, this.#onRejectedBind)
+      return
+    }
 
-      this.#value = value
-      this.#state = STATE.REJECTED
-      this.#runCallbacks()
-    })
+    this.#result = result
+    this.#state = STATE.FULFILLED
+    this.#runCallbacks()
+  }
+
+  #onRejected(result) {
+    if (this.#state !== STATE.PENDING) return // 동일 then 내 reject 재호출 방지
+
+    if (result instanceof MyPromise) {
+      result.then(this.#onFulfilledBind, this.#onRejectedBind)
+      return
+    }
+
+    this.#result = result
+    this.#state = STATE.REJECTED
+    this.#runCallbacks()
   }
 
   then(thenCb, catchCb) {
-    // if (thenCb != null) this.#thenCbs.push(thenCb);
-    // if (catchCb != null) this.#catchCbs.push(catchCb);
+    // if (thenCb != undefined) this.#thenCbs.push(thenCb);
+    // if (catchCb != undefined) this.#catchCbs.push(catchCb);
 
     return new MyPromise((resolve, reject) => {
+      // TODO then 내부 에러 catch에서만 잡을 수 있는 까닭
       this.#thenCbs.push((result) => {
-        if (thenCb == null) {
-          // catch 처리
+        // then(undefined, catchCb) 처리
+        if (thenCb == undefined) {
           resolve(result)
           return
         }
 
         try {
-          resolve(thenCb(result)) // chaining
+          resolve(thenCb(result))
         } catch (e) {
+          // then 내부에서 에러가 있으면, 다음으로 넘김.
           reject(e)
         }
       })
 
       this.#catchCbs.push((result) => {
-        if (catchCb == null) {
+        // then(thenCb) 처리
+        if (catchCb == undefined) {
           reject(result)
           return
         }
@@ -109,8 +119,6 @@ class MyPromise {
           reject(e)
         }
       })
-
-      this.#runCallbacks()
     })
   }
 
@@ -123,7 +131,6 @@ class MyPromise {
     return this.then(
       (result) => {
         cb()
-        π
         return result
       },
       (result) => {
@@ -133,15 +140,15 @@ class MyPromise {
     )
   }
 
-  static resolve(value) {
+  static resolve(result) {
     return new Promise((resolve) => {
-      resolve(value)
+      resolve(result)
     })
   }
 
-  static reject(value) {
+  static reject(result) {
     return new Promise((resolve, reject) => {
-      reject(value)
+      reject(result)
     })
   }
 
@@ -153,9 +160,9 @@ class MyPromise {
       for (let i = 0; i < promises.length; i++) {
         const promise = promises[i]
         promise
-          .then((value) => {
+          .then((result) => {
             completedPromises++
-            results[i] = value
+            results[i] = result
             // 모든 promise 결과값이 나오면 수행
             if (completedPromises === promises.length) {
               resolve(results)
@@ -174,8 +181,8 @@ class MyPromise {
       for (let i = 0; i < promises.length; i++) {
         const promise = promises[i]
         promise
-          .then((value) => {
-            results[i] = { status: STATE.FULFILLED, value }
+          .then((result) => {
+            results[i] = { status: STATE.FULFILLED, result }
           })
           .catch((reason) => {
             results[i] = { status: STATE.REJECTED, reason }
@@ -206,9 +213,9 @@ class MyPromise {
     return new MyPromise((resolve, reject) => {
       for (let i = 0; i < promises.length; i++) {
         const promise = promises[i]
-        promise.then(resolve).catch((value) => {
+        promise.then(resolve).catch((result) => {
           rejectedPromises++
-          errors[i] = value
+          errors[i] = result
           // 모든 promise 결과값이 나오면 수행
           if (rejectedPromises === promises.length) {
             reject(new AggregateError(errors, "ALl promises were rejected"))
